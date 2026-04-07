@@ -3,7 +3,7 @@ import numpy as np
 
 class HybridRetriever:
 
-    def __init__(self, dense_retriever, sparse_retriever, alpha=0.6):
+    def __init__(self, dense_retriever, sparse_retriever, alpha=0.5):
 
         self.dense = dense_retriever
         self.sparse = sparse_retriever
