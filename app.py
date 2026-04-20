@@ -4,9 +4,11 @@ import sys
 from sklearn.decomposition import PCA
 import numpy as np
 import matplotlib.pyplot as plt
-
+from dotenv import load_dotenv
+load_dotenv()
 
 sys.path.append(os.path.abspath(os.path.dirname(__file__)))
+print("DEBUG API KEY:", os.getenv("GROQ_API_KEY"))
 
 from src.dense_retriever import DenseRetriever
 from src.sparse_retriever import SparseRetriever
@@ -64,11 +66,16 @@ query = st.text_input("Enter your medical question:")
 
 if query:
     st.write("### Retrieving Sources...")
-    results = hybrid.search(query, k=5)
+    #results = hybrid.search(query, k=5)
+    
+    #replacing above line with script to get reranked results.
+    from src.reranker import Reranker
+    reranker = Reranker()
+    results = hybrid.search(query, k=20)
+    final_results = reranker.rerank(query, results, top_k=5)
 
     st.write("### Retrieval Analysis")
 
-    # Get embeddings for visualization
     query_embedding = hybrid.dense.model.encode([query])
 
     doc_embeddings = []
@@ -138,7 +145,9 @@ if query:
 
     st.write("### Generating Answer...")
 
-    contexts = [{"text": r["text"]} for r in results]
+    #contexts = [{"text": r["text"]} for r in results]
+    #change made for reranker
+    contexts = [{"text": r["text"]} for r in final_results]
 
     answer = generator.generate(query, contexts)
 
